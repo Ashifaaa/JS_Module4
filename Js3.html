@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Series Search</title>
+</head>
+<body>
+
+  <h1>TV Series Search</h1>
+
+  <form id="searchForm" action="https://api.tvmaze.com/search/shows" method="GET">
+    <label for="query">Enter TV Series:</label>
+    <input id="query" name="q" type="text" required>
+    <input type="submit" value="Search">
+  </form>
+
+  <div id="results"></div>
+
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const query = document.getElementById('query').value;
+      const apiUrl = `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('results').innerHTML = '';
+
+          data.forEach(tvShow => {
+            const article = document.createElement('article');
+
+            // name in <h2> element
+            const nameHeader = document.createElement('h2');
+            nameHeader.textContent = tvShow.show.name;
+            article.appendChild(nameHeader);
+
+            // url in <a> element
+            const urlLink = document.createElement('a');
+            urlLink.href = tvShow.show.url;
+            urlLink.textContent = 'Details';
+            urlLink.target = '_blank';
+            article.appendChild(urlLink);
+
+            // medium image
+            if (tvShow.show.image?.medium) {
+              const image = document.createElement('img');
+              image.src = tvShow.show.image.medium;
+              image.alt = tvShow.show.name;
+              article.appendChild(image);
+            }
+            // summary
+            const summaryDiv = document.createElement('div');
+            summaryDiv.innerHTML = tvShow.show.summary;
+            article.appendChild(summaryDiv);
+
+
+            document.getElementById('results').appendChild(article);
+          });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    });
+  </script>
